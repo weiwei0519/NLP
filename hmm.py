@@ -1,18 +1,12 @@
 # coding=UTF-8
-# 隐马尔科夫概率模型分词
+# 隐马尔科夫概率模型
 
 import os
 import pickle
 
 
 class HMM(object):
-    def __init__(self, model_file='./model/hmm_model.pkl', dic_file='./dictionary/dic_pos.txt', need_pos=True):
-
-        # # 分词模型词典
-        # self.cut_dic_file = './dictionary/dictionary.txt'
-        #
-        # # hmm分词模型，主要是用于存储算法模型的结果，是训练模式还是测试模式
-        # self.cut_model_file = './model/hmm_cut_model.pkl'
+    def __init__(self, model_file='./model/hmm_model.pkl', dic_file='./dictionary/dic_pos.txt', type='POS'):
 
         # 分词+词性标注模型词典
         self.dic_file = dic_file
@@ -20,17 +14,14 @@ class HMM(object):
         # hmm分词+词性标注模型，主要是用于存储算法模型的结果，是训练模式还是测试模式
         self.model_file = model_file
 
-        # # 分词模型状态枚举值
-        # self.cut_state_list = ['B', 'M', 'E', 'S']
-
         # 分词+词性标注模型状态枚举值
         self.state_list = {}
 
         # 参数加载，用于判断是否需要加载模型文件
         self.load_model = False
 
-        # 区分是否需要附加词性
-        self.need_pos = need_pos
+        # 区分不同的训练类型：POS，Normal, NER
+        self.type = type
 
         # HMM模型初始化参数
         # Pi，A，B概率
@@ -59,19 +50,27 @@ class HMM(object):
             self.model_train()
 
     # 给输入word计算序列，并附上pos
-    @staticmethod
-    def makeLabel(word, pos):
+    def buildState(self, word, pos, type):
         labels = []
-        if len(pos) > 0:
+        if self.type == 'POS':
             if len(word) == 1:
                 labels.append('S_' + pos)
             else:
                 labels += ['B_' + pos] + ['M_' + pos] * (len(word) - 2) + ['E_' + pos]
-        else:
+        elif self.type == 'Normal':
             if len(word) == 1:
                 labels.append('S')
             else:
                 labels += ['B'] + ['M'] * (len(word) - 2) + ['E']
+        elif self.type == 'NER':
+            if type == 'NER':
+                if len(word) == 1:
+                    labels.append('S_' + pos)
+                else:
+                    labels += ['B_' + pos] + ['M_' + pos] * (len(word) - 2) + ['E_' + pos]
+            else:
+                # 如果当前任务类型为NER，但是外部传入了Normal，说明从字典看是非NER词，标记为O
+                labels += ['O_' + pos] * (len(word))
         return labels
 
     # 通过给定的分词+词性标注语料，训练语料，计算转移概率、发射概率以及初始概率
@@ -86,50 +85,87 @@ class HMM(object):
                 if not line: continue
                 words_org = line.split(' ')  # 词列表
                 z = []
-                labels = []
+                states = []
                 words = []
-                for word in words_org:  # 国务院/nt  [西藏/ns 自治区/n 政府/n]nt
-                    # 首先去除命名实体的标志[]
-                    if word.find('[') > 0:
-                        word = word[word.find('[') + 1:-1]
-                    if word.find(']') > 0:
-                        word = word[:word.find(']')]
-                    # 区分字典是否包含pos
-                    if self.need_pos:
+                ner_word = ''
+                ner_switch = False
+                for word in words_org:  # 国务院/nt [西藏/ns 自治区/n 政府/n]nt
+                    # 区分不同的训练类型：POS，Normal, NER
+                    if self.type == 'POS':
+                        # 首先去除命名实体的标志[]
+                        if word.find('[') > 0:
+                            word = word[word.find('[') + 1:-1]
+                        if word.find(']') > 0:
+                            word = word[:word.find(']')]
                         pos = word[word.find('/') + 1:]
                         word = word[:word.find('/')]
-                    else:
+                        z.extend(i for i in word)
+                        words.append(word)
+                        states.extend(self.buildState(word, pos, type='POS'))
+                    elif self.type == 'Normal':
+                        # 首先去除命名实体的标志[]
+                        if word.find('[') > 0:
+                            word = word[word.find('[') + 1:-1]
+                        if word.find(']') > 0:
+                            word = word[:word.find(']')]
                         pos = ''
-                    z.extend(i for i in word)
-                    words.append(word)
-                    labels.extend(self.makeLabel(word, pos))
-                assert len(z) == len(labels)
+                        z.extend(i for i in word)
+                        words.append(word)
+                        states.extend(self.buildState(word, pos, type='Normal'))
+                    elif self.type == 'NER':
+                        if word.find('[') >= 0:
+                            ner_switch = True
+                            ner_word = word[word.find('[') + 1:word.find('/')]
+                            pos = ''
+                            word = word[word.find('[') + 1:word.find('/')]
+                        elif word.find(']') >= 0:
+                            ner_switch = False
+                            ner_word += word[:word.find('/')]
+                            pos = word[word.find(']') + 1:]
+                            word = word[:word.find('/')]
+                        elif ner_switch:
+                            ner_word += word[:word.find('/')]
+                            pos = ''
+                            word = word[:word.find('/')]
+                        else:
+                            pos = word[word.find('/') + 1:]
+                            word = word[:word.find('/')]
+                        z.extend(i for i in word)
+                        if not ner_switch and len(ner_word) > 0:
+                            words.append(ner_word)
+                            states.extend(self.buildState(ner_word, pos, 'NER'))
+                            ner_word = ''
+                            ner_switch = False
+                        elif not ner_switch and len(ner_word) == 0:
+                            words.append(word)
+                            states.extend(self.buildState(word, pos, 'POS'))
+                assert len(z) == len(states)
                 for i in range(len(z)):
                     # 添加状态序列及计数
-                    self.state_list[labels[i]] = self.state_list.get(labels[i], 0) + 1
+                    self.state_list[states[i]] = self.state_list.get(states[i], 0) + 1
 
                     # 发射概率计数
-                    if labels[i] not in self.B_dic:
-                        self.B_dic[labels[i]] = {}
-                        self.B_dic[labels[i]][z[i]] = 1
-                    elif labels[i] in self.B_dic and z[i] not in self.B_dic[labels[i]]:
-                        self.B_dic[labels[i]][z[i]] = 1
+                    if states[i] not in self.B_dic:
+                        self.B_dic[states[i]] = {}
+                        self.B_dic[states[i]][z[i]] = 1
+                    elif states[i] in self.B_dic and z[i] not in self.B_dic[states[i]]:
+                        self.B_dic[states[i]][z[i]] = 1
                     else:
-                        self.B_dic[labels[i]][z[i]] += 1
+                        self.B_dic[states[i]][z[i]] += 1
 
                     if i == 0:
                         # 初始概率计数，只计算一句话的首字
-                        self.Pi_dic[labels[i]] = self.Pi_dic.get(labels[i], 0) + 1
+                        self.Pi_dic[states[i]] = self.Pi_dic.get(states[i], 0) + 1
                     else:
                         # 状态转移计数，从句首第二字开始计数
                         # 数据结构调整一下：{状态A：{状态B：p}}，这样好纵向扩展，减少全局调整
-                        if labels[i - 1] not in self.A_dic:
-                            self.A_dic[labels[i - 1]] = {}
-                            self.A_dic[labels[i - 1]][labels[i]] = 1
-                        elif labels[i] not in self.A_dic[labels[i - 1]]:
-                            self.A_dic[labels[i - 1]][labels[i]] = 1
+                        if states[i - 1] not in self.A_dic:
+                            self.A_dic[states[i - 1]] = {}
+                            self.A_dic[states[i - 1]][states[i]] = 1
+                        elif states[i] not in self.A_dic[states[i - 1]]:
+                            self.A_dic[states[i - 1]][states[i]] = 1
                         else:
-                            self.A_dic[labels[i - 1]][labels[i]] += 1
+                            self.A_dic[states[i - 1]][states[i]] += 1
 
             # 计算Pi，A，B的概率
             # Pi：{'B_pos':0.0, 'M_pos':0.0, 'E_pos':0.0, 'S_pos':0.0}
@@ -161,7 +197,7 @@ class HMM(object):
 
     def cut(self, text):
         prob, label_list = self.viterbi(text, self.state_list, self.Pi_dic, self.A_dic, self.B_dic)
-        if self.need_pos:
+        if self.type == 'POS' or self.type == 'NER':
             pos_list = [label[label.find('_') + 1:] for label in label_list]
             label_list = [label[:label.find('_')] for label in label_list]
         else:
@@ -176,6 +212,8 @@ class HMM(object):
                 next = i + 1
             elif label == 'S':
                 yield char + '/' + pos_list[i]
+                next = i + 1
+            elif label == 'O':
                 next = i + 1
         if next < len(text):
             yield text[next:] + '/' + pos_list[-1]
@@ -206,25 +244,27 @@ class HMM(object):
                 V[t][y] = prob
                 newpath[y] = path[state] + [y]
             path = newpath
-        if self.need_pos:
+        if self.type == 'POS':
             if max([v.get(text[-1], 0) for k, v in emit_p.items() if 'M_' in k]) > max(
                     [v.get(text[-1], 0) for k, v in emit_p.items() if 'S_' in k]):
                 (prob, state) = max(
                     [(V[len(text) - 1][y], y) for y, p in V[len(text) - 1].items() if 'M_' in y or 'S_' in y])
             else:
                 (prob, state) = max([(V[len(text) - 1][y], y) for y in states])
-        else:
+        elif self.type == 'Normal':
             if emit_p['M'].get(text[-1], 0) > emit_p['S'].get(text[-1], 0):
                 (prob, state) = max([(V[len(text) - 1][y], y) for y in ('E', 'M')])
             else:
                 (prob, state) = max([(V[len(text) - 1][y], y) for y in states])
-
+        elif self.type == 'NER':
+            (prob, state) = max([(V[len(text) - 1][y], y) for y in states])
         return (prob, path[state])
 
 
 if __name__ == '__main__':
 
-    hmm = HMM(model_file='./model/hmm_model.pkl', dic_file='./dictionary/dictionary.txt', need_pos=False)
+    # type: Normal普通分词, POS词性分词, NER命名实体识别
+    hmm = HMM(model_file='./model/hmm_pos_model.pkl', dic_file='./dictionary/dic_pos.txt', type='POS')
     res = list(hmm.cut("我想学习计算机编程"))
     print(res)
 

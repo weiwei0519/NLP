@@ -17,7 +17,7 @@ import datetime
 # seg_list = jieba.cut(sent, cut_all=False)
 # # 搜索引擎模式，在精确模式的基础上，对长词再次切分，提高召回率，适合用于搜索引擎分词
 # seg_list = jieba.cut_for_search(sent)
-def cut(text, cuttype=False):
+def cut_org(text, cuttype=False):
     if text == "":
         return
     if cuttype:
@@ -29,7 +29,7 @@ def cut(text, cuttype=False):
 
 # 分词，且过滤停用词
 def cut_rm_stopwords(text, cuttype=False):
-    words = filter_stopwords(cut(text, cuttype))
+    words = filter_stopwords(cut_org(text, cuttype))
     return words
 
 
@@ -61,6 +61,18 @@ def cut_with_pos_rm_sw(text):
     stopwords = load_stopwords()
     words_pos = [x for x in words_pos if x[:x.find('/')] not in stopwords]
     return words_pos
+
+# 分词且带词性（pos：part of speech），并过滤停用词，输出格式为：[['word', 'pos']]
+def cut_with_pos_rm_sw_list(text):
+    words_pos = psg.cut(text)
+    stopwords = load_stopwords()
+    words_pos = [[word, pos] for word, pos in words_pos if word not in stopwords]
+    return words_pos
+
+# word list过滤长度为1，只取标签为n开头的词，例如：名词、人名、地名、机构团体名、其它专有名词
+def word_pos_filter(words):
+    filter_words = [word for word, pos in words if pos.startswith('n') and len(word) > 1]
+    return filter_words
 
 
 # 计算text中词的词频，且默认会过滤停用词，因为绝大多数场景，停用词无实际意义
@@ -154,7 +166,7 @@ def ishanzi(text):
 if __name__ == '__main__':
     text = "我想学习<机器学习第2部>"
     print("input text: {0}".format(text))
-    words = cut(text)
+    words = cut_org(text)
     print("jieba精确分词结果：{0}".format(words))
     words = cut_rm_stopwords(text)
     print("jieba分词且过滤停用词结果：{0}".format(words))
@@ -165,7 +177,7 @@ if __name__ == '__main__':
     words_pos = cut_with_pos_rm_sw(text)
     print("jieba.posseg分词且带词性并过滤停用词结果：{0}".format(words_pos))
     # 隐马尔可夫模型分词
-    hmm = HMM(model_file='./model/hmm_pos_model.pkl', dic_file='./dictionary/dic_pos.txt', need_pos=True)
+    hmm = HMM(model_file='./model/hmm_pos_model.pkl', dic_file='./dictionary/dic_pos.txt', type=True)
     words_hmm = list(hmm.cut(text))
     print("HMM分词结果：{0}".format(words_hmm))
     words_hmm_rm_sw = filter_stopwords(words_hmm)

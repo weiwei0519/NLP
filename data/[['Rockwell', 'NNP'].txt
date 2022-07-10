@@ -1,0 +1,35 @@
+[['Rockwell', 'NNP'], 
+ ['International', 'NNP'], 
+ ['Corp.', 'NNP'], 
+ ["'s", 'POS'], 
+ ['Tulsa', 'NNP'], 
+ ['unit', 'NN'], 
+ ['said', 'VBD'], 
+ ['it', 'PRP'], 
+ ['signed', 'VBD'], 
+ ['a', 'DT'], 
+ ['tentative', 'JJ'], 
+ ['agreement', 'NN'], 
+ ['extending', 'VBG'], 
+ ['its', 'PRP$'], 
+ ['contract', 'NN'], 
+ ['with', 'IN'], 
+ ['Boeing', 'NNP'], 
+ ['Co.', 'NNP'], 
+ ['to', 'TO'], 
+ ['provide', 'VB'], 
+ ['structural', 'JJ'], 
+ ['parts', 'NNS'], 
+ ['for', 'IN'], 
+ ['Boeing', 'NNP'], 
+ ["'s", 'POS'], 
+ ['747', 'CD'], 
+ ['jetliners', 'NNS'], 
+ ['.', '.']]
+
+
+
+
+ ['U[0]:Corp.', 'POS_U[0]:NNP', "U[+1]:'s", "B[0]:Corp. 's", 'POS_U[1]:POS', 'POS_B[0]:NNP POS', 'U[+2]:Tulsa', 'POS_U[+2]:NNP', 
+ 'POS_B[+1]:POS NNP', 'POS_T[0]:NNP POS NNP', 'U[-1]:International', 'B[-1]:International Corp.', 'POS_U[-1]:NNP', 'POS_B[-1]:NNP NNP', 
+ 'POS_T[-1]:NNP NNP POS', 'U[-2]:Rockwell', 'POS_U[-2]:NNP', 'POS_B[-2]:NNP NNP', 'POS_T[-2]:NNP NNP NNP']

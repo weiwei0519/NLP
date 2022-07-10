@@ -1,0 +1,6 @@
+model_checkpoint_path: "NNLM_TF.ckpt"
+all_model_checkpoint_paths: "NNLM_TF.ckpt-199"
+all_model_checkpoint_paths: "NNLM_TF.ckpt-299"
+all_model_checkpoint_paths: "NNLM_TF.ckpt-399"
+all_model_checkpoint_paths: "NNLM_TF.ckpt-499"
+all_model_checkpoint_paths: "NNLM_TF.ckpt"

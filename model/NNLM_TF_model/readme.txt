@@ -1,0 +1,1 @@
+.meta – 保存图结构，即神经网络的网络结构 .data – 保存数据文件，即网络的权值，偏置，操作等等 .index – 是一个不可变得字符串表，每一个键都是张量的名称，它的值是一个序列化的BundleEntryProto。 每个BundleEntryProto描述张量的元数据：“数据”文件中的哪个文件包含张量的内容，该文件的偏移量，校验和，一些辅助数据等等。 checkpoint – 文本文件，里面记录了保存的最新的checkpoint文件以及其它checkpoint文件列表。在inference时，可以通过修改这个文件，指定使用哪个model.
