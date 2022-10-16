@@ -32,7 +32,7 @@ def cmp(e1, e2):
 class Tf_Idf(object):
 
     # 四个参数分别是：训练好的idf字典，默认idf值，处理后的待提取文本，关键词数量
-    def __init__(self, corpus_file='./data/corpus.txt', keyword_num=10):
+    def __init__(self, corpus_file='./datasets/corpus.txt', keyword_num=10):
         self.corpus_file = corpus_file
         self.doc_word_list = list()
         self.keyword_num = keyword_num
@@ -138,9 +138,9 @@ class TextRank(object):
         # step2：构建入链词和出链词
         i = 0
         for word in word_list:
-            if i + 4 < len(word_list):
-                window_word = [w for w in word_list[i:i + 5] if w != word]
-            elif i + 4 >= len(word_list) and len(word_list) - 5 >= 0:
+            if i + (self.windows - 1) < len(word_list):
+                window_word = [w for w in word_list[i:i + self.windows] if w != word]
+            elif i + (self.windows - 1) >= len(word_list) and len(word_list) - self.windows >= 0:
                 window_word = [w for w in word_list[-5:-1] if w != word]
             else:
                 window_word = [w for w in word_list if w != word]
@@ -357,7 +357,7 @@ if __name__ == '__main__':
     print("jieba.analyse模型的输出结果为：{0}".format(keywords))
 
     print('LSI模型结果：')
-    topicModel = TopicModel('./data/corpus.txt', 10, 'LSI', 10)
+    topicModel = TopicModel('datasets/corpus.txt', 10, 'LSI', 10)
     print("自建LSI模型，提取关键词的结果：")
     keywords = topicModel.extract_keyword(text)
     print(keywords)
@@ -365,6 +365,6 @@ if __name__ == '__main__':
     keywords = topicModel.extract_keyword_2(text)
     print(keywords)
     print('LDA模型结果：')
-    topicModel = TopicModel('./data/corpus.txt', 10, 'LDA')
+    topicModel = TopicModel('datasets/corpus.txt', 10, 'LDA')
     keywords = topicModel.extract_keyword_2(text)
     print(keywords)

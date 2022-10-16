@@ -250,7 +250,7 @@ class LinearChainCRF():
         # for data_string in data_string_list:
         #     words = data_string.strip().split()
         #     if len(words) is 0:
-        #         data.append((X, Y))
+        #         datasets.append((X, Y))
         #         X = list()
         #         Y = list()
         #     else:
@@ -261,7 +261,7 @@ class LinearChainCRF():
         #         X.append(words[:-1])
         #         Y.append(words[-1])
         # if len(X) > 0:
-        #     data.append((X, Y))
+        #     datasets.append((X, Y))
 
         return training_data, testing_data
 
@@ -319,7 +319,7 @@ class LinearChainCRF():
         print('[%s] Start training' % datetime.datetime.now())
 
         # Read the training corpus
-        print("* Reading training data ... \n", end="")
+        print("* Reading training datasets ... \n", end="")
         self.training_data, self.testing_data = self._read_corpus(corpus_filename)
         print("Done")
 
@@ -429,7 +429,7 @@ class LinearChainCRF():
         f.close()
 
         # Read the training corpus
-        print("* Reading training data ... ", end="")
+        print("* Reading training datasets ... ", end="")
         self.training_data, self.testing_data = self._read_corpus(corpus_filename)
         print("Done")
 
@@ -445,11 +445,11 @@ class LinearChainCRF():
 # For testing
 crf = LinearChainCRF()
 
-# crf.train('data/simple_train.data', 'model/crf_bfgs.json')
+# crf.train('datasets/simple_train.datasets', 'model/crf_bfgs.json')
 crf.train('dictionary/dic_pos.txt', 'model/crf_bfgs.json')
 crf.load('dictionary/dic_pos.txt', 'model/crf_bfgs.json')
 crf.test()
 
-# crf.train('data/chunking_2/train.txt', 'data/chunking_2/model_4.json')
-# crf.load('data/chunking_2/model_4.json')
-# crf.test('data/chunking_2/test.txt')
+# crf.train('datasets/chunking_2/train.txt', 'datasets/chunking_2/model_4.json')
+# crf.load('datasets/chunking_2/model_4.json')
+# crf.test('datasets/chunking_2/test.txt')

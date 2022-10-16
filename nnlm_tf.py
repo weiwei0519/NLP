@@ -21,7 +21,7 @@ ops.reset_default_graph()
 
 
 class NNLM_TF():
-    def __init__(self, corpus_file='./data/Chinese/*.txt', model_dir='./model/NNLM_TF_model', window=2,
+    def __init__(self, corpus_file='./datasets/Chinese/*.txt', model_dir='./model/NNLM_TF_model', window=2,
                  sita=0.01):
         self.corpus_word_list = self.read_corpus_file(corpus_file)
         self.wf, self.id2word, self.word2id = self.word_process()

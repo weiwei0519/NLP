@@ -17,7 +17,7 @@ logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=lo
 
 
 class WordVector():
-    def __init__(self, corpus_file='./data/Chinese/*.txt', model_file='./model/word2vec_model'):
+    def __init__(self, corpus_file='./datasets/Chinese/*.txt', model_file='./model/word2vec_model'):
         self.corpus_word_list = self.read_corpus_file(corpus_file)
         self.wf, self.id2word, self.word2id = self.word_process()
         self.model_file = model_file

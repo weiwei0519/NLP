@@ -202,7 +202,7 @@ class pLSA():
 
 if __name__ == "__main__":
     _plsa = pLSA(5)
-    _plsa.loadCorpus("./data/corpus.txt")
+    _plsa.loadCorpus("./datasets/corpus.txt")
     _plsa.train()
     _plsa.printTopicOfDoc()
     _plsa.printWordOfTopic()

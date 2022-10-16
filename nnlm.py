@@ -16,7 +16,7 @@ THRESHOLD = math.log(1e250)
 
 
 class NNLM():
-    def __init__(self, corpus_file='./data/Chinese/*.txt', model_file='./model/NNLM_model.pkl', window=4, sita=0.1):
+    def __init__(self, corpus_file='./datasets/Chinese/*.txt', model_file='./model/NNLM_model.pkl', window=4, sita=0.1):
         self.corpus_word_list = self.read_corpus_file(corpus_file)
         self.wf, self.id2word, self.word2id = self.word_process()
         self.model_file = model_file

@@ -48,7 +48,7 @@ class dictionary():
         CUT_state = list()  # 分词状态列表
         POS_state = list()  # 词性状态列表
         NER_state = list()  # NER词性状态列表
-        print("start read dictionary data")
+        print("start read dictionary datasets")
         line_num = 0
         with open(self.dic_file, encoding='utf-8') as f:  # 读取字典文件
             for line in f:
@@ -85,6 +85,6 @@ class dictionary():
                 CUT_state.append(cut_state)
                 Words.append(words)
                 POS_state.append(pos_state)
-        print("finish read dictionary data")
+        print("finish read dictionary datasets")
         f.close()
         return Z, Words, CUT_state, POS_state

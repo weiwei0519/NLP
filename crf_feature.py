@@ -95,7 +95,7 @@ class FeatureSet():
     def scan(self, data):
         """
         Constructs a feature set, a label set,
-            and a counter of empirical counts of each feature from the input data.
+            and a counter of empirical counts of each feature from the input datasets.
         :param data: A list of (X, Y) pairs. (X: observation vector , Y: label vector)
         """
         # Constructs a feature set, and counts empirical counts.
