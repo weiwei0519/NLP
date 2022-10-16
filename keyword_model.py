@@ -343,10 +343,11 @@ if __name__ == '__main__':
            '事长接受晋江市参与“百万孤老关爱行动”向国家重点扶贫地区捐赠的价值400万元的款物。晋江市人大' + \
            '常委会主任陈健倩介绍了大会的筹备情况。'
 
-    print('TF-IDF模型抽取关键字如下：')
+
     tf_idf = Tf_Idf()
     tf_idf.model_train()
     keywords = tf_idf.get_keywords(text, 10)
+    print('TF-IDF模型抽取关键字如下：')
     print(keywords)
 
     print('TextRank模型结果：')
@@ -356,15 +357,15 @@ if __name__ == '__main__':
     keywords = textrank.keyword_byTextRank_2(text)
     print("jieba.analyse模型的输出结果为：{0}".format(keywords))
 
-    print('LSI模型结果：')
+    print('主题LSI模型结果：')
     topicModel = TopicModel('datasets/corpus.txt', 10, 'LSI', 10)
-    print("自建LSI模型，提取关键词的结果：")
+    print("主题LSI模型，提取关键词的结果：")
     keywords = topicModel.extract_keyword(text)
     print(keywords)
     print("Gensim自带的LSI模型，提取关键词的结果：")
     keywords = topicModel.extract_keyword_2(text)
     print(keywords)
-    print('LDA模型结果：')
+    print('主题LDA模型结果：')
     topicModel = TopicModel('datasets/corpus.txt', 10, 'LDA')
     keywords = topicModel.extract_keyword_2(text)
     print(keywords)
