@@ -17,7 +17,7 @@ class PCFG():
         self.pcfg_path = 'edu/stanford/nlp/models/lexparser/chinesePCFG.ser.gz'
         # 指定JDK路径
         if not os.environ.get('JAVA_HOME'):
-            JAVA_HOME = 'C:\Program Files\Java\jdk1.8.0_181'
+            JAVA_HOME = 'C:\Program Files\Java\openjdk-11-windows-x64'
             os.environ['JAVA_HOME'] = JAVA_HOME
         self.parser = stanford.StanfordParser(path_to_jar=self.parser_path,
                                               path_to_models_jar=self.model_path,
